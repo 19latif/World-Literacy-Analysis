@@ -1,0 +1,9 @@
+{
+	"name": "worldliteracy",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "32de5ba7-3357-4253-8d14-47a3f7e3b33a",
+		"tenantId": "ef350f96-c962-4cb3-abad-5a3a022c948f"
+	}
+}
