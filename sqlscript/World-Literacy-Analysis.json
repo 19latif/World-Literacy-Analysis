@@ -1,0 +1,17 @@
+{
+	"name": "World-Literacy-Analysis",
+	"properties": {
+		"content": {
+			"query": "-- Get the total number of records in the view\nSELECT COUNT(*) AS TotalRecords\nFROM dbo.worldliteracyrate;\n\n-- Get the top 50 rows to understand the structure and sample data\nSELECT TOP (50) *\nFROM dbo.worldliteracyrate\nWHERE ReportingYear = 2022\nORDER BY \nSerialNumber ASC,\nCountryName;\n\n\n-- Get summary statistics for literacy rates\nSELECT\n    MIN([LiteracyRate]) AS MinLiteracyRate,\n    MAX([LiteracyRate]) AS MaxLiteracyRate,\n    AVG([LiteracyRate]) AS AvgLiteracyRate,\n    STDEV([LiteracyRate]) AS StdDevLiteracyRate\nFROM dbo.worldliteracyrate;\n\n-- Get the distribution of literacy rates by country\nSELECT\n    [CountryName],\n    COUNT(*) AS NumberOfEntries,\n    MIN([LiteracyRate]) AS MinLiteracyRate,\n    MAX([LiteracyRate]) AS MaxLiteracyRate,\n    AVG([LiteracyRate]) AS AvgLiteracyRate\nFROM dbo.worldliteracyrate\nGROUP BY [CountryName]\nORDER BY AVG([LiteracyRate]) DESC;\n\n-- Get the average literacy rate by year\nSELECT\n    [ReportingYear],\n    AVG([LiteracyRate]) AS AvgLiteracyRate\nFROM dbo.worldliteracyrate\nGROUP BY [ReportingYear]\nORDER BY [ReportingYear];\n\n-- Get literacy rate trends over time for specific countries\n-- Get literacy rate trends over time for specific countries\nSELECT\n    [CountryName],\n    [ReportingYear],\n    [LiteracyRate]\nFROM dbo.worldliteracyrate\nWHERE [CountryName] IN ('United States of America', 'Kazakhstan', 'China')  \nORDER BY [CountryName], [ReportingYear];\n\n\n-- Get the top 10 countries with the highest literacy rates\nSELECT TOP (10)\n    [CountryName],\n    MAX([LiteracyRate]) AS MaxLiteracyRate\nFROM dbo.worldliteracyrate\nGROUP BY [CountryName]\nORDER BY MaxLiteracyRate DESC;\n\n-- Get the top 10 countries with the lowest literacy rates\nSELECT TOP (10)\n    [CountryName],\n    MIN([LiteracyRate]) AS MinLiteracyRate\nFROM dbo.worldliteracyrate\nGROUP BY [CountryName]\nORDER BY MinLiteracyRate ASC;\n\n\n\n\n-- Compute the correlation between LiteracyRate and ReportingYear\nWITH Stats AS (\n    SELECT\n        COUNT(*) AS N,\n        SUM([LiteracyRate]) AS SumLiteracyRate,\n        SUM([ReportingYear]) AS SumYear,\n        SUM([LiteracyRate] * [LiteracyRate]) AS SumLiteracyRateSquared,\n        SUM([ReportingYear] * [ReportingYear]) AS SumYearSquared,\n        SUM([LiteracyRate] * [ReportingYear]) AS SumLiteracyRateYear\n    FROM dbo.worldliteracyrate\n)\nSELECT\n    (CAST(N AS FLOAT) * SumLiteracyRateYear - SumLiteracyRate * SumYear) /\n    (SQRT(\n        (CAST(N AS FLOAT) * SumLiteracyRateSquared - POWER(SumLiteracyRate, 2)) *\n        (CAST(N AS FLOAT) * SumYearSquared - POWER(SumYear, 2))\n    )) AS Correlation\nFROM Stats;\n\n\n\n-- Identify outliers in literacy rates using Z-score method\nWITH Stats AS (\n    SELECT\n        AVG([LiteracyRate]) AS AvgLiteracyRate,\n        STDEV([LiteracyRate]) AS StdDevLiteracyRate\n    FROM dbo.worldliteracyrate\n)\nSELECT\n    [CountryName],\n    [ReportingYear],\n    [LiteracyRate],\n    ([LiteracyRate] - Stats.AvgLiteracyRate) / Stats.StdDevLiteracyRate AS ZScore\nFROM dbo.worldliteracyrate\nCROSS JOIN Stats\nWHERE ABS(([LiteracyRate] - Stats.AvgLiteracyRate) / Stats.StdDevLiteracyRate) > 2  -- Example threshold\nORDER BY ZScore DESC;\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "wl-db",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
